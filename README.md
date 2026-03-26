@@ -1,173 +1,169 @@
-# DevTinder
+# DevTinder Backend 🚀
 
-- Create a Vite + React application
-- Remove unecessary code and create a Hello World app
-- Install Tailwind CSS
-- Install Daisy UI
-- Add NavBar component to App.jsx
-- Create a NavBar.jsx separate Component file
-- Install react router dom
-- Create BrowserRouter > Routes > Route=/ Body > RouteChildren
-- Create an Outlet in your Body Component
-- Create a footer
-- Create a Login Page
-- Install axios
-- CORS - install cors in backend => add middleware to with configurations: orgin, credentials: true
-- Whenever you're making API call so pass axios => { withCredentials: true }
-- install react-redux + @reduxjs/toolkit - https://redux-toolkit.js.org/tutorials/quick-start
-- configureStore => Provider => createSlice => add reducer to store
-- Add redux devtools in chrome
-- Login and see if your data is coming properly in the store
-- NavBar should update as soon as user logs in
-- Refactor our code to add constants file + create a components folder 
-- You should not be access other routes without login
-- If token is not present, redirect user to login page
-- Logout Feature
-- Get the feed and add the feed in th store
-- build the user card on feed
-- Edit Profile Feature
-- Show Toast Message on save of profile
-- New Page - See all my connections
-- New Page - See all my Conenction REquests
-- Feature - Accept/Reject connection request
-- Send/Ignore the user card from the feed 
-- Signup New User 
-- E2E testing
+## 📌 Overview
 
+DevTinder is a **MERN stack** web application designed to help developers **connect and collaborate**, similar to Tinder but specifically for developers. Users can create profiles, explore other developers, send connection requests, and manage their matches.
 
-Body 
-    NavBar
-    Route=/  => Feed
-    Route=/login  => Login
-    Route=/connetions => Connections
-    Router=/profile => Profile
+This repository contains the **backend** of DevTinder, built with **Node.js, Express, and MongoDB**, following a **microservices architecture** for scalability.
 
+> ⚠️ **Note:** The backend is **fully functional** and ready for further scaling and optimizations.
 
+---
 
-    # Deployment
+## 🔑 Features Implemented
 
-    - Signup on AWS 
-    - Launch instance
-    - chmod 400 <secret>.pem
-    - ssh -i "devTinder-secret.pem" ubuntu@ec2-43-204-96-49.ap-south-1.compute.amazonaws.com
-    - Install Node version 16.17.0
-    - Git clone
-    - Frontend    
-        - npm install  -> dependencies install
-        - npm run build
-        - sudo apt update
-        - sudo apt install nginx
-        - sudo systemctl start nginx
-        - sudo systemctl enable nginx
-        - Copy code from dist(build files) to /var/www/html/
-        - sudo scp -r dist/* /var/www/html/
-        - Enable port :80 of your instance
-    - Backend
-        - updated DB password
-        - allowed ec2 instance public IP on mongodb server
-        - npm intsall pm2 -g
-        - pm2 start npm --name "devTinder-backend" -- start
-        - pm2 logs
-        - pm2 list, pm2 flush <name> , pm2 stop <name>, pm2 delete <name>
-        - config nginx - /etc/nginx/sites-available/default
-        - restart nginx - sudo systemctl restart nginx
-        - Modify the BASEURL in frontend project to "/api"
+### **1. Authentication System**
 
+✅ User Signup, Login, and Logout  
+✅ JWT-based authentication with secure cookies  
+✅ Password encryption using **bcryptjs**  
+✅ Authentication middleware to protect routes
 
+### **2. User Profile Management**
 
-# Ngxinx config: 
+✅ View user profile  
+✅ Edit profile details (restricted fields for security)  
+✅ Update password with validation
 
-        Frontend = http://43.204.96.49/
-        Backend = http://43.204.96.49:7777/
-    
-        Domain name = devtinder.com => 43.204.96.49
+### **3. Connection Request System**
 
-        Frontend = devtinder.com
-        Backend = devtinder.com:7777 => devtinder.com/api
+✅ Send connection requests (`Interested` or `Ignored`)  
+✅ Accept or reject received requests  
+✅ Prevent duplicate requests using MongoDB validation  
+✅ Prevent self-requests using Mongoose `.pre` middleware
 
-        nginx config : 
+### **4. Feed API & Pagination**
 
-        server_name 43.204.96.49;
+✅ Fetch suggested developers while excluding:
 
-        location /api/ {
-            proxy_pass http://localhost:7777/;  # Pass the request to the Node.js app
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-        }
+- Logged-in user
+- Existing connections
+- Ignored users
+- Users with pending requests  
+  ✅ Implemented **pagination** using `skip` & `limit`  
+  ✅ Optimized query using **MongoDB $nin and $ne operators**
 
+### **5. Database Design**
 
-# Addding a custom Domain name
+✅ **User Schema**:
 
-    - purchased domain name from godaddy
-    - signup on cloudflare & add a new domain name
-    - change the nameservers on godaddy and point it to cloudflare
-    - wait for sometime till your nameservers are updated ~15 minutes
-    - DNS record: A devtinder.in 43.204.96.49
-    - Enable SSL for website 
+- Sanitized input fields (`trim`, `lowercase`, validation)
+- Unique constraints on email and username
 
+✅ **ConnectionRequest Schema**:
 
-# Sending Emails via SES
+- `fromUserId`, `toUserId`, `status` with **enum validation**
+- Indexed fields for optimized queries
+- Prevents multiple requests between the same users
 
-    - Create a IAM user
-    - Give Access to AmazonSESFullAccess
-    - Amazon SES: Create an Identity
-    - Verify your domain name
-    - Verify an email address identity
-    - Install AWS SDK - v3 
-    - Code Example https://github.com/awsdocs/aws-doc-sdk-examples/tree/main/javascriptv3/example_code/ses#code-examples
-    - Setup SesClient
-    - Access Credentials should be created in IAm under SecurityCredentials Tab
-    - Add the credentials to the env file
-    - Write code for SESClient
-    - Write code for Sending email address
-    - Make the email dynamic by passing more params to the run function
+### **6. Advanced Query Optimization**
 
+✅ **Indexes & Compound Indexes**:
 
-# Scheduling cron jobs in NodeJS
-    - Installing node-cron
-    - Learning about cron expressions syntax - crontab.guru
-    - Schedule a job
-    - date-fns
-    - Find all the unique  email Id who have got connection Request in previous day
-    - Send Email
-    - Explore queue mechanim to send bulk emails
-    - Amazon SES Bulk Emails
-    - Make sendEmail function dynamic
-    - bee-queue & bull npm packages
+- Used `index: true` for faster queries
+- Implemented compound indexes to optimize search
 
+### **7. Middleware Implementation**
 
-# Razorpay Payment Gateway Inegration
-    - Sign up on Razorpay & complete KYC 
-    - Cerated a UI for premium page
-    - Creating an API for create order in backend
-    - added my key and secret in env file
-    - Intialized Razorpay in utils
-    - creating order on Razorpay
-    - create Schema and model
-    - saved the order in payments collection
-    - make the API dynamic
-    - Setup RRazorpay webhook on your live APi
-    - Ref - https://github.com/razorpay/razorpay-node/tree/master/documents
-    - Ref - https://razorpay.com/docs/payments/server-integration/nodejs/integration-steps/#integrate-with-razorpay-payment-gateway
-    - Ref - https://razorpay.com/docs/webhooks/validate-test/
-    - Ref - https://razorpay.com/docs/webhooks/payloads/payments/
+✅ **Authentication Middleware**: Protects private routes  
+✅ **Error Handling Middleware**: Centralized error response  
+✅ **Mongoose `.pre` Middleware**: Prevents self-requests
 
+### **8. Express Router Structure**
 
-# Real Time Chat using Websocket(Socket.io)
-    - Build the UI for a chat window on /chat/:targetUserId
-    - Setup socket.io in backend
-    - npm i socket.io
-    - Setup frontend socket.io-client
-    - Initialise the chat
-    - createSocketConnection
-    - Listen to events
-    - Homework:  improve the UI
-    - Homework: Fix Security Bug - auth in web ockets
-    - Homework: Fix bug - If I'm not fried, then I should not be able to send message
-    - Homework: feat: Show Green Symbol when online???? - [last Seen 2 hours ago]
-    - Homework: Limit messages when fetching from DB
-    - Project Ideas: Tic tac toe game
-    - Project Idea 2 : Chess
+✅ Modular route organization for maintainability  
+✅ APIs structured into separate routers (`auth`, `profile`, `connections`, `users`)
+
+---
+
+## 🚀 API Endpoints
+
+### **1️⃣ Authentication Routes**
+
+| Method | Endpoint       | Description                        | Auth Required |
+| ------ | -------------- | ---------------------------------- | ------------- |
+| POST   | `/auth/signup` | Register a new user                | ❌            |
+| POST   | `/auth/login`  | Authenticate user & issue JWT      | ❌            |
+| POST   | `/auth/logout` | Logout user by clearing JWT cookie | ✅            |
+
+---
+
+### **2️⃣ User Profile Routes**
+
+| Method | Endpoint            | Description                   | Auth Required |
+| ------ | ------------------- | ----------------------------- | ------------- |
+| GET    | `/profile/view`     | Get logged-in user profile    | ✅            |
+| PATCH  | `/profile/edit`     | Update allowed profile fields | ✅            |
+| PATCH  | `/profile/password` | Update user password          | ✅            |
+
+---
+
+### **3️⃣ Connection Request Routes**
+
+| Method | Endpoint                             | Description                                    | Auth Required |
+| ------ | ------------------------------------ | ---------------------------------------------- | ------------- |
+| POST   | `/request/send/:status/:toUserId`    | Send a connection request (Interested/Ignored) | ✅            |
+| POST   | `/request/review/:status/:requestId` | Accept/Reject a request                        | ✅            |
+| GET    | `/user/requests/received`            | Fetch pending connection requests              | ✅            |
+| GET    | `/user/connections`                  | Fetch accepted connections                     | ✅            |
+
+---
+
+### **4️⃣ Feed API & Pagination**
+
+| Method | Endpoint                     | Description                                      | Auth Required |
+| ------ | ---------------------------- | ------------------------------------------------ | ------------- |
+| GET    | `/user/feed?page=1&limit=10` | Get suggested developer profiles with pagination | ✅            |
+
+---
+
+## 🏗️ Setup & Running the Server
+
+### **1️⃣ Clone the Repository**
+
+### **2️⃣ Set Up Environment Variables**
+
+Create a `.env` file and add:
+
+```ini
+DATABASE_URL=mongodb+srv://<username>:<password>@cluster0.mongodb.net/devTinder
+JWT_SECRET=your_jwt_secret
+PORT=3000
+```
+
+### **3️⃣ Start the Backend Server**
+
+```bash
+npm start
+```
+
+Server runs at: `http://localhost:3000/`
+
+## 📢 Contribution Guidelines
+
+Since the project is now fully functional, improvements are still welcome!
+✅ Feel free to open issues for bugs or feature requests.  
+✅ Fork the repository and submit a pull request.
+
+---
+
+## 📌 Future Enhancements
+
+🔹 Real-time notifications using WebSockets  
+🔹 Messaging System for better user interaction  
+🔹 Profile Search & Filtering  
+🔹 Unit Testing for API reliability
+
+---
+
+## 📜 License
+
+This project is open-source and available under the **MIT License**.
+
+---
+
+<div align="center">
+
+**Made with ❤️ by Jenish Gojariya**
+
+</div>
